@@ -1187,36 +1187,74 @@ function displayOrders(filteredOrders) {
 }
 
 // Display statistics for today's orders
-function displayStatistics(allOrders) {
+function displayStatistics(allOrders, selectedDate = null) {
     // Create stats container
     const statsContainer = document.createElement('div');
     statsContainer.className = 'stats-container';
-    
-    // Get today's date (start of day in local timezone)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Filter orders for today only - with more flexible matching for timezone differences
+
+    // Add date selector at the top
+    const dateSelectorContainer = document.createElement('div');
+    dateSelectorContainer.className = 'date-selector-container';
+    dateSelectorContainer.innerHTML = `
+        <div class="date-selector-controls">
+            <button id="prevDayBtn" class="date-nav-btn">‹ Previous</button>
+            <input type="date" id="statsDatePicker" class="stats-date-picker" value="${selectedDate ? selectedDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}">
+            <button id="todayBtn" class="date-nav-btn">Today</button>
+            <button id="nextDayBtn" class="date-nav-btn">Next ›</button>
+        </div>
+        <div class="date-comparison-toggle">
+            <label>
+                <input type="checkbox" id="showComparisonToggle">
+                <span>Show Yesterday Comparison</span>
+            </label>
+        </div>
+    `;
+    statsContainer.appendChild(dateSelectorContainer);
+
+    // Get selected date or default to today
+    const targetDate = selectedDate || new Date();
+    targetDate.setHours(0, 0, 0, 0);
+
+    // Get yesterday for comparison
+    const yesterday = new Date(targetDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    // Filter orders for selected date
     const todaysOrders = allOrders.filter(order => {
         const data = order.data();
-        const orderTime = data.orderTime && typeof data.orderTime === 'string' ? 
-            new Date(data.orderTime) : 
+        const orderTime = data.orderTime && typeof data.orderTime === 'string' ?
+            new Date(data.orderTime) :
             (data.orderTime && data.orderTime.toDate ? data.orderTime.toDate() : null);
-        
+
         if (!orderTime) return false;
-        
-        // More flexible matching to account for timezone differences
-        // Match orders from the last 24 hours or any order from today's date in local time
+
         const orderDate = new Date(orderTime);
-        const now = new Date();
-        const diffHours = (now - orderDate) / (1000 * 60 * 60);
-        
+
         // Check if same day (local time) only
-        const isSameDay = orderDate.getDate() === now.getDate() && 
-                          orderDate.getMonth() === now.getMonth() && 
-                          orderDate.getFullYear() === now.getFullYear();
-        
-        return isSameDay; // Only include orders from the current calendar day
+        const isSameDay = orderDate.getDate() === targetDate.getDate() &&
+                          orderDate.getMonth() === targetDate.getMonth() &&
+                          orderDate.getFullYear() === targetDate.getFullYear();
+
+        return isSameDay;
+    });
+
+    // Filter orders for yesterday (for comparison)
+    const yesterdaysOrders = allOrders.filter(order => {
+        const data = order.data();
+        const orderTime = data.orderTime && typeof data.orderTime === 'string' ?
+            new Date(data.orderTime) :
+            (data.orderTime && data.orderTime.toDate ? data.orderTime.toDate() : null);
+
+        if (!orderTime) return false;
+
+        const orderDate = new Date(orderTime);
+
+        const isSameDay = orderDate.getDate() === yesterday.getDate() &&
+                          orderDate.getMonth() === yesterday.getMonth() &&
+                          orderDate.getFullYear() === yesterday.getFullYear();
+
+        return isSameDay;
     });
     
     // Calculate total pizzas sold today
@@ -1231,24 +1269,55 @@ function displayStatistics(allOrders) {
         'delivered': 0,
         'cancelled': 0
     };
-    
+
     // Different pizza types sold today
     let pizzaTypes = {};
-    
+
     // Track ingredients usage
     let ingredientsUsage = {};
+
+    // Platform breakdown tracking
+    let platformStats = {};
+
+    // Calculate yesterday's stats for comparison
+    let yesterdayTotalOrders = yesterdaysOrders.length;
+    let yesterdayTotalRevenue = 0;
+    let yesterdayTotalPizzas = 0;
+
+    yesterdaysOrders.forEach(order => {
+        const data = order.data();
+        yesterdayTotalRevenue += Number(data.totalAmount) || 0;
+        if (data.pizzas && Array.isArray(data.pizzas)) {
+            data.pizzas.forEach(pizza => {
+                yesterdayTotalPizzas += pizza.quantity || 1;
+            });
+        }
+    });
     
     todaysOrders.forEach(order => {
         const data = order.data();
-        
+
         // Count by status
         const status = (data.status || '').toLowerCase();
         if (statusCounts.hasOwnProperty(status)) {
             statusCounts[status]++;
         }
-        
+
         // Add to total revenue
-        totalRevenue += Number(data.totalAmount) || 0;
+        const orderAmount = Number(data.totalAmount) || 0;
+        totalRevenue += orderAmount;
+
+        // Track platform stats
+        const platform = data.platform || 'Unknown';
+        if (!platformStats[platform]) {
+            platformStats[platform] = {
+                orders: 0,
+                revenue: 0,
+                pizzas: 0
+            };
+        }
+        platformStats[platform].orders++;
+        platformStats[platform].revenue += orderAmount;
         
         // Check if order was/is late
         if (data.dueTime && data.orderTime) {
@@ -1275,7 +1344,8 @@ function displayStatistics(allOrders) {
                 // Add quantity (or 1 if quantity not specified)
                 const quantity = pizza.quantity || 1;
                 totalPizzas += quantity;
-                
+                platformStats[platform].pizzas += quantity;
+
                 // Count by pizza type
                 const pizzaType = pizza.pizzaType || 'Unknown';
                 if (!pizzaTypes[pizzaType]) pizzaTypes[pizzaType] = 0;
@@ -1302,42 +1372,111 @@ function displayStatistics(allOrders) {
     // Create today's date display
     const dateDisplay = document.createElement('div');
     dateDisplay.className = 'stats-date';
-    dateDisplay.textContent = today.toLocaleDateString(undefined, { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    dateDisplay.textContent = targetDate.toLocaleDateString(undefined, {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
     statsContainer.appendChild(dateDisplay);
-    
+
     // If no orders today
     if (todaysOrders.length === 0) {
         const noData = document.createElement('div');
         noData.className = 'no-orders';
-        noData.innerHTML = `<p>No pizza orders found for today.</p>`;
+        noData.innerHTML = `<p>No pizza orders found for ${targetDate.toLocaleDateString()}.</p>`;
         statsContainer.appendChild(noData);
         ordersContainer.appendChild(statsContainer);
         updateLastUpdated();
+
+        // Setup date navigation event listeners even with no data
+        setupDateNavigation(allOrders, targetDate);
         return;
     }
-    
+
+    // Calculate AOV
+    const avgOrderValue = todaysOrders.length > 0 ? totalRevenue / todaysOrders.length : 0;
+    const yesterdayAOV = yesterdayTotalOrders > 0 ? yesterdayTotalRevenue / yesterdayTotalOrders : 0;
+
+    // Calculate percentage changes
+    const orderChange = yesterdayTotalOrders > 0 ? ((todaysOrders.length - yesterdayTotalOrders) / yesterdayTotalOrders * 100) : 0;
+    const revenueChange = yesterdayTotalRevenue > 0 ? ((totalRevenue - yesterdayTotalRevenue) / yesterdayTotalRevenue * 100) : 0;
+    const pizzaChange = yesterdayTotalPizzas > 0 ? ((totalPizzas - yesterdayTotalPizzas) / yesterdayTotalPizzas * 100) : 0;
+    const aovChange = yesterdayAOV > 0 ? ((avgOrderValue - yesterdayAOV) / yesterdayAOV * 100) : 0;
+
+    // Helper function to create comparison badge
+    function createComparisonBadge(change) {
+        if (change === 0) return '<span class="comparison-neutral">→ 0%</span>';
+        const icon = change > 0 ? '↑' : '↓';
+        const className = change > 0 ? 'comparison-positive' : 'comparison-negative';
+        return `<span class="${className}">${icon} ${Math.abs(change).toFixed(1)}%</span>`;
+    }
+
     // Create summary cards
     const summaryCardsContainer = document.createElement('div');
     summaryCardsContainer.className = 'stats-summary-cards';
-    
-    // Orders card
-    const ordersCard = createStatCard('Orders Today', todaysOrders.length, 'receipt');
+
+    // Orders card with comparison
+    const ordersCard = document.createElement('div');
+    ordersCard.className = 'stats-card';
+    ordersCard.innerHTML = `
+        <div class="stats-card-icon material-icons">receipt</div>
+        <div class="stats-card-content">
+            <div class="stats-card-label">Orders</div>
+            <div class="stats-card-value">${todaysOrders.length}</div>
+            <div class="stats-card-comparison">${createComparisonBadge(orderChange)}</div>
+        </div>
+    `;
     summaryCardsContainer.appendChild(ordersCard);
-    
-    // Pizzas card
-    const pizzasCard = createStatCard('Pizzas Sold', totalPizzas, 'local_pizza');
+
+    // Pizzas card with comparison
+    const pizzasCard = document.createElement('div');
+    pizzasCard.className = 'stats-card';
+    pizzasCard.innerHTML = `
+        <div class="stats-card-icon material-icons">local_pizza</div>
+        <div class="stats-card-content">
+            <div class="stats-card-label">Pizzas Sold</div>
+            <div class="stats-card-value">${totalPizzas}</div>
+            <div class="stats-card-comparison">${createComparisonBadge(pizzaChange)}</div>
+        </div>
+    `;
     summaryCardsContainer.appendChild(pizzasCard);
-    
-    // Revenue card
-    const revenueCard = createStatCard('Total Revenue', formatCurrency(totalRevenue), 'payments');
+
+    // Revenue card with comparison
+    const revenueCard = document.createElement('div');
+    revenueCard.className = 'stats-card';
+    revenueCard.innerHTML = `
+        <div class="stats-card-icon material-icons">payments</div>
+        <div class="stats-card-content">
+            <div class="stats-card-label">Total Revenue</div>
+            <div class="stats-card-value">${formatCurrency(totalRevenue)}</div>
+            <div class="stats-card-comparison">${createComparisonBadge(revenueChange)}</div>
+        </div>
+    `;
     summaryCardsContainer.appendChild(revenueCard);
-    
+
+    // AOV card with comparison
+    const aovCard = document.createElement('div');
+    aovCard.className = 'stats-card';
+    aovCard.innerHTML = `
+        <div class="stats-card-icon material-icons">attach_money</div>
+        <div class="stats-card-content">
+            <div class="stats-card-label">Avg Order Value</div>
+            <div class="stats-card-value">${formatCurrency(avgOrderValue)}</div>
+            <div class="stats-card-comparison">${createComparisonBadge(aovChange)}</div>
+        </div>
+    `;
+    summaryCardsContainer.appendChild(aovCard);
+
     // Late orders card
-    const lateCard = createStatCard('Late Orders', totalLateOrders, 'schedule', totalLateOrders > 0 ? 'stats-card-warning' : '');
+    const lateCard = document.createElement('div');
+    lateCard.className = `stats-card ${totalLateOrders > 0 ? 'stats-card-warning' : ''}`;
+    lateCard.innerHTML = `
+        <div class="stats-card-icon material-icons">schedule</div>
+        <div class="stats-card-content">
+            <div class="stats-card-label">Late Orders</div>
+            <div class="stats-card-value">${totalLateOrders}</div>
+        </div>
+    `;
     summaryCardsContainer.appendChild(lateCard);
-    
+
     statsContainer.appendChild(summaryCardsContainer);
     
     // Order status breakdown with visualization
@@ -1576,7 +1715,163 @@ function displayStatistics(allOrders) {
         hourlyBreakdown.appendChild(hourlyChartScript);
         statsContainer.appendChild(hourlyBreakdown);
     }
-    
+
+    // Platform Performance Breakdown
+    if (Object.keys(platformStats).length > 0) {
+        const platformBreakdown = document.createElement('div');
+        platformBreakdown.className = 'stats-section';
+
+        const platformTitle = document.createElement('h3');
+        platformTitle.textContent = 'Platform Performance';
+        platformBreakdown.appendChild(platformTitle);
+
+        const platformVisualContainer = document.createElement('div');
+        platformVisualContainer.className = 'stats-visual-container';
+        platformBreakdown.appendChild(platformVisualContainer);
+
+        // Create chart container
+        const platformChartContainer = document.createElement('div');
+        platformChartContainer.className = 'stats-chart-container';
+        platformChartContainer.style.flex = '1';
+
+        const platformCanvas = document.createElement('canvas');
+        platformCanvas.id = 'platformChart';
+        platformCanvas.style.width = '100%';
+        platformCanvas.style.height = '250px';
+        platformChartContainer.appendChild(platformCanvas);
+        platformVisualContainer.appendChild(platformChartContainer);
+
+        // Create table container
+        const platformTableContainer = document.createElement('div');
+        platformTableContainer.className = 'stats-table-container';
+        platformTableContainer.style.flex = '1';
+        platformVisualContainer.appendChild(platformTableContainer);
+
+        const platformTable = document.createElement('table');
+        platformTable.className = 'stats-table';
+
+        // Header
+        const platformHeader = document.createElement('tr');
+        platformHeader.innerHTML = `
+            <th>Platform</th>
+            <th>Orders</th>
+            <th>Revenue</th>
+            <th>Pizzas</th>
+            <th>AOV</th>
+        `;
+        platformTable.appendChild(platformHeader);
+
+        // Sort platforms by revenue
+        const sortedPlatforms = Object.entries(platformStats)
+            .sort((a, b) => b[1].revenue - a[1].revenue);
+
+        // Prepare data for platform chart
+        const platformLabels = [];
+        const platformRevenueData = [];
+        const platformOrdersData = [];
+        const platformColors = [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)'
+        ];
+
+        // Create table rows and collect chart data
+        sortedPlatforms.forEach(([platform, stats]) => {
+            const row = document.createElement('tr');
+            const platformAOV = stats.orders > 0 ? stats.revenue / stats.orders : 0;
+
+            row.innerHTML = `
+                <td><strong>${platform}</strong></td>
+                <td>${stats.orders}</td>
+                <td>${formatCurrency(stats.revenue)}</td>
+                <td>${stats.pizzas}</td>
+                <td>${formatCurrency(platformAOV)}</td>
+            `;
+
+            platformTable.appendChild(row);
+
+            // Add to chart data
+            platformLabels.push(platform);
+            platformRevenueData.push(stats.revenue);
+            platformOrdersData.push(stats.orders);
+        });
+
+        platformTableContainer.appendChild(platformTable);
+
+        // Create platform chart script
+        const platformChartScript = document.createElement('script');
+        platformChartScript.innerHTML = `
+            setTimeout(() => {
+                const platformCtx = document.getElementById('platformChart');
+                if (!platformCtx) return;
+
+                new Chart(platformCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ${JSON.stringify(platformLabels)},
+                        datasets: [{
+                            label: 'Revenue',
+                            data: ${JSON.stringify(platformRevenueData)},
+                            backgroundColor: ${JSON.stringify(platformColors.slice(0, platformLabels.length))},
+                            borderColor: ${JSON.stringify(platformColors.slice(0, platformLabels.length).map(color => color.replace('0.7', '1')))},
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        }, {
+                            label: 'Orders',
+                            data: ${JSON.stringify(platformOrdersData)},
+                            backgroundColor: 'rgba(201, 203, 207, 0.7)',
+                            borderColor: 'rgba(201, 203, 207, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Revenue & Orders by Platform',
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Revenue (R)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Orders'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }, 100);
+        `;
+
+        platformBreakdown.appendChild(platformChartScript);
+        statsContainer.appendChild(platformBreakdown);
+    }
+
     // Create pizza types breakdown
     // If we have pizza types, display breakdown with visualization
     if (Object.keys(pizzaTypes).length > 0) {
@@ -1846,9 +2141,138 @@ function displayStatistics(allOrders) {
         ingredientsBreakdown.appendChild(ingredientsChartScript);
         statsContainer.appendChild(ingredientsBreakdown);
     }
-    
+
+    // Add export button
+    const exportContainer = document.createElement('div');
+    exportContainer.className = 'export-container';
+    exportContainer.innerHTML = `
+        <button id="exportStatsBtn" class="export-btn">
+            <span class="material-icons">download</span>
+            Export Daily Report (CSV)
+        </button>
+    `;
+    statsContainer.appendChild(exportContainer);
+
     ordersContainer.appendChild(statsContainer);
     updateLastUpdated();
+
+    // Setup date navigation event listeners
+    setupDateNavigation(allOrders, targetDate);
+
+    // Setup export functionality
+    document.getElementById('exportStatsBtn')?.addEventListener('click', () => {
+        exportDailyStats(todaysOrders, targetDate, {
+            totalOrders: todaysOrders.length,
+            totalPizzas,
+            totalRevenue,
+            avgOrderValue,
+            totalLateOrders,
+            platformStats,
+            pizzaTypes
+        });
+    });
+}
+
+// Setup date navigation event listeners
+function setupDateNavigation(allOrders, currentDate) {
+    const datePicker = document.getElementById('statsDatePicker');
+    const prevBtn = document.getElementById('prevDayBtn');
+    const todayBtn = document.getElementById('todayBtn');
+    const nextBtn = document.getElementById('nextDayBtn');
+
+    if (datePicker) {
+        datePicker.addEventListener('change', (e) => {
+            const selectedDate = new Date(e.target.value + 'T00:00:00');
+            ordersContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading statistics...</p></div>';
+            setTimeout(() => displayStatistics(allOrders, selectedDate), 100);
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            const prevDate = new Date(currentDate);
+            prevDate.setDate(prevDate.getDate() - 1);
+            ordersContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading statistics...</p></div>';
+            setTimeout(() => displayStatistics(allOrders, prevDate), 100);
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            const nextDate = new Date(currentDate);
+            nextDate.setDate(nextDate.getDate() + 1);
+            ordersContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading statistics...</p></div>';
+            setTimeout(() => displayStatistics(allOrders, nextDate), 100);
+        });
+    }
+
+    if (todayBtn) {
+        todayBtn.addEventListener('click', () => {
+            ordersContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading statistics...</p></div>';
+            setTimeout(() => displayStatistics(allOrders, new Date()), 100);
+        });
+    }
+}
+
+// Export daily statistics to CSV
+function exportDailyStats(orders, date, summary) {
+    const dateStr = date.toISOString().split('T')[0];
+    let csv = `John Dough's Illovo - Daily Report\n`;
+    csv += `Date: ${date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
+
+    // Summary section
+    csv += `SUMMARY\n`;
+    csv += `Total Orders,${summary.totalOrders}\n`;
+    csv += `Total Pizzas Sold,${summary.totalPizzas}\n`;
+    csv += `Total Revenue,${summary.totalRevenue.toFixed(2)}\n`;
+    csv += `Average Order Value,${summary.avgOrderValue.toFixed(2)}\n`;
+    csv += `Late Orders,${summary.totalLateOrders}\n\n`;
+
+    // Platform breakdown
+    csv += `PLATFORM PERFORMANCE\n`;
+    csv += `Platform,Orders,Revenue,Pizzas,AOV\n`;
+    Object.entries(summary.platformStats).forEach(([platform, stats]) => {
+        const aov = stats.orders > 0 ? (stats.revenue / stats.orders).toFixed(2) : '0.00';
+        csv += `${platform},${stats.orders},${stats.revenue.toFixed(2)},${stats.pizzas},${aov}\n`;
+    });
+    csv += `\n`;
+
+    // Pizza types breakdown
+    csv += `PIZZA TYPES\n`;
+    csv += `Pizza Type,Quantity,Percentage\n`;
+    Object.entries(summary.pizzaTypes)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([type, quantity]) => {
+            const percentage = ((quantity / summary.totalPizzas) * 100).toFixed(1);
+            csv += `${type},${quantity},${percentage}%\n`;
+        });
+    csv += `\n`;
+
+    // Individual orders
+    csv += `DETAILED ORDERS\n`;
+    csv += `Order Time,Customer,Platform,Status,Amount,Pizzas,Special Instructions\n`;
+    orders.forEach(order => {
+        const data = order.data();
+        const orderTime = data.orderTime && typeof data.orderTime === 'string' ?
+            new Date(data.orderTime) :
+            (data.orderTime && data.orderTime.toDate ? data.orderTime.toDate() : new Date());
+        const timeStr = orderTime.toLocaleTimeString();
+        const pizzaCount = data.pizzas ? data.pizzas.reduce((sum, p) => sum + (p.quantity || 1), 0) : 0;
+        const specialInst = data.hasSpecialInstructions ? 'Yes' : 'No';
+
+        csv += `${timeStr},"${data.customerName || 'Unknown'}",${data.platform || 'Unknown'},${data.status || 'Unknown'},${(data.totalAmount || 0).toFixed(2)},${pizzaCount},${specialInst}\n`;
+    });
+
+    // Create download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `john-doughs-illovo-${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Display monthly statistics
