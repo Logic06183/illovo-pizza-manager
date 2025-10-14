@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍕 John Dough's Illovo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍕</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="stats-styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Updated Firebase SDK versions -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Chart.js for monthly stats visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Add debug styles -->
+    <style>
+        .debug-console {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            z-index: 1000;
+            border-top: 1px solid #444;
+        }
+        .debug-console.show {
+            display: block;
+        }
+        .debug-line {
+            margin: 2px 0;
+            line-height: 1.2;
+        }
+        .debug-toggle {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <h1>🍕 John Dough's Illovo</h1>
+                <div class="toggle-container">
+                    <span>Live Updates</span>
+                    <label class="switch">
+                        <input type="checkbox" id="realtimeToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="all">All Orders</button>
+                <button class="tab-btn" data-tab="preparing">Preparing</button>
+                <button class="tab-btn" data-tab="ready">Ready</button>
+                <button class="tab-btn" data-tab="done">Completed</button>
+                <button class="tab-btn" data-tab="stats">📊 Daily Stats</button>
+                <button class="tab-btn" data-tab="monthly">📅 Monthly Stats</button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="refresh-banner">
+                <button id="refreshButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                    Refresh
+                </button>
+                <span id="lastUpdated"></span>
+            </div>
+            
+            <!-- Search and Filter Section -->
+            <div class="search-filter-section">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search by customer name, order #, or platform..." autocomplete="off">
+                        <button id="clearSearch" class="clear-search-btn" style="display: none;">×</button>
+                    </div>
+                </div>
+                
+                <div class="quick-filters">
+                    <button class="quick-filter-btn" data-filter="late">🚨 Late Orders</button>
+                    <button class="quick-filter-btn" data-filter="special">⚠️ Special Instructions</button>
+                    <button class="quick-filter-btn" data-filter="today">📅 Today</button>
+                    <button class="quick-filter-btn active" data-filter="all">🔄 All</button>
+                </div>
+            </div>
+
+            <div id="ordersContainer" class="orders-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading pizza orders...</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>John Dough's Illovo v1.0 • Made with ❤️</p>
+        </footer>
+    </div>
+    
+    <!-- Debug console for troubleshooting -->
+    <div id="debugConsole" class="debug-console"></div>
+    <button id="debugToggle" class="debug-toggle">Show Debug</button>
+
+    <script src="app.js"></script>
+    <script>
+        // Debug console toggle functionality
+        document.getElementById('debugToggle').addEventListener('click', function() {
+            const console = document.getElementById('debugConsole');
+            console.classList.toggle('show');
+            this.textContent = console.classList.contains('show') ? 'Hide Debug' : 'Show Debug';
+        });
+    </script>
+</body>
+</html>

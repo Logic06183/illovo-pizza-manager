@@ -1,0 +1,14 @@
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Mac
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
