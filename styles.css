@@ -1,18 +1,20 @@
 :root {
-    --primary-color: #cc0000; /* Changed to a stronger red */
-    --secondary-color: #e60000;
-    --background-color: #f8f8f8;
-    --card-background: #ffffff;
-    --text-color: #333333;
-    --text-secondary: #666666;
-    --border-color: #ecf0f1;
-    --success-color: #2ecc71;
-    --info-color: #3498db;
-    --warning-color: #f1c40f;
-    --danger-color: #e60000;
-    --gray-color: #95a5a6;
-    --dark-color: #34495e;
-    --header-text-color: #ffffff;
+    /* John Dough's brand palette — matches Linden dashboard */
+    --primary-color: #FFD700;       /* Gold accent */
+    --primary-dark: #FFC000;        /* Darker gold */
+    --background-color: #0A0A0A;    /* Main dark background */
+    --card-background: #1A1A1A;     /* Card / sidebar dark */
+    --card-secondary: #2D2D2D;      /* Slightly lighter dark */
+    --text-color: #F3F4F6;          /* Primary text (near-white) */
+    --text-secondary: #9CA3AF;      /* Muted gray text */
+    --border-color: #2D2D2D;        /* Dark border */
+    --success-color: #10B981;       /* Green */
+    --info-color: #3B82F6;          /* Blue */
+    --warning-color: #F97316;       /* Orange */
+    --danger-color: #EF4444;        /* Red (danger only) */
+    --gray-color: #4B5563;          /* Mid gray */
+    --dark-color: #111111;          /* Deepest dark */
+    --header-text-color: #FFD700;   /* Gold text on dark header */
 }
 
 * {
@@ -37,12 +39,13 @@ body {
 
 /* Header Styles */
 header {
-    background-color: var(--primary-color);
+    background-color: var(--card-background);
     color: var(--header-text-color);
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    border-bottom: 2px solid var(--primary-color);
 }
 
 .header-content {
@@ -104,7 +107,7 @@ h1 {
     width: 18px;
     left: 3px;
     bottom: 3px;
-    background-color: white;
+    background-color: var(--card-background);
     transition: .4s;
     border-radius: 50%;
 }
@@ -160,7 +163,7 @@ main {
 /* Search and Filter Section */
 .search-filter-section {
     margin-bottom: 1rem;
-    background-color: white;
+    background-color: var(--card-background);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -189,7 +192,8 @@ main {
     border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.9rem;
-    background-color: white;
+    background-color: var(--card-secondary);
+    color: var(--text-color);
     transition: border-color 0.2s ease;
 }
 
@@ -225,7 +229,7 @@ main {
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: 20px;
-    background-color: white;
+    background-color: var(--card-background);
     color: var(--text-color);
     font-size: 0.8rem;
     cursor: pointer;
@@ -240,8 +244,9 @@ main {
 
 .quick-filter-btn.active {
     background-color: var(--primary-color);
-    color: white;
+    color: #1A1A1A;
     border-color: var(--primary-color);
+    font-weight: 600;
 }
 
 .search-results-info {
@@ -285,11 +290,11 @@ main {
 .order-card {
     background-color: var(--card-background);
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
     margin-bottom: 16px;
-    border-left: 3px solid #eee;
+    border-left: 3px solid var(--border-color);
 }
 
 .order-card:active {
@@ -576,7 +581,9 @@ footer {
 
 /* Alert message */
 .alert-message {
-    background-color: #e8f4f8;
+    background-color: var(--card-secondary);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
     padding: 0.75rem;
     border-radius: 8px;
     margin-bottom: 1rem;
@@ -691,7 +698,7 @@ footer {
     position: fixed;
     top: 20px;
     right: 20px;
-    background-color: white;
+    background-color: var(--card-background);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 1rem;
@@ -733,7 +740,7 @@ footer {
 
 /* Enhanced Error States */
 .error-state {
-    background-color: white;
+    background-color: var(--card-background);
     border-radius: 12px;
     padding: 2rem;
     margin: 1rem 0;
@@ -875,7 +882,7 @@ footer {
 }
 
 .staff-note {
-    background-color: white;
+    background-color: var(--card-background);
     border-radius: 6px;
     padding: 0.75rem;
     margin-bottom: 0.5rem;
@@ -924,7 +931,7 @@ footer {
 }
 
 .note-dialog {
-    background-color: white;
+    background-color: var(--card-background);
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
