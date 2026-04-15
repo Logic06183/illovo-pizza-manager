@@ -98,98 +98,148 @@ let searchQuery = '';
 let quickFilter = 'all';
 
 // Pizza ingredients mapping for John Dough's pizzas with quantities per pizza
+// Synced with Linden ingredients.js — confirmed April 2026
 const pizzaIngredients = {
     "The Champ Pizza": [
-        {name: "pepperoni", amount: 75, unit: "g"},
-        {name: "spring onions", amount: 30, unit: "g"},
-        {name: "parmesan", amount: 3, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "pepperoni", amount: 74, unit: "g"},
+        {name: "red onion", amount: 8, unit: "g"},
+        {name: "parmesan", amount: 8, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Pig in Paradise": [
-        {name: "bacon", amount: 65, unit: "g"},
+        {name: "bacon", amount: 64, unit: "g"},
         {name: "caramelised pineapple", amount: 130, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Margie Pizza": [
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
         {name: "fresh mozzarella", amount: 80, unit: "g"},
-        {name: "basil", amount: 10, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "basil", amount: 3.5, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Mushroom Cloud Pizza": [
-        {name: "mushrooms", amount: 85, unit: "g"},
-        {name: "goat's cheese", amount: 35, unit: "g"},
-        {name: "sunflower seeds", amount: 10, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
+        {name: "mushrooms", amount: 86, unit: "g"},
+        {name: "goat's cheese", amount: 30, unit: "g"},
+        {name: "sunflower seeds", amount: 2, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
         {name: "caramelised onions", amount: 100, unit: "g"},
-        {name: "chilli oil", amount: 10, unit: "ml"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "chilli oil", amount: 2, unit: "ml"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Spud Pizza": [
-        {name: "potato slices", amount: 95, unit: "g"},
-        {name: "rosemary", amount: 4, unit: "g"},
-        {name: "salt flakes", amount: 3, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "caramelised onion", amount: 100, unit: "g"},
-        {name: "chilli oil", amount: 10, unit: "ml"},
-        {name: "parmesan", amount: 3, unit: "g"}
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "potato slices", amount: 100, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "caramelised onions", amount: 76, unit: "g"},
+        {name: "chilli oil", amount: 2, unit: "ml"},
+        {name: "parmesan", amount: 8, unit: "g"}
     ],
     "Mish-Mash Pizza": [
         {name: "parma ham", amount: 40, unit: "g"},
         {name: "fig preserve", amount: 45, unit: "g"},
-        {name: "goat's cheese", amount: 35, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "rocket", amount: 15, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "goat's cheese", amount: 30, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "rocket", amount: 20, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Lekker'izza": [
-        {name: "bacon", amount: 65, unit: "g"},
-        {name: "chorizo sausage", amount: 65, unit: "g"},
+        {name: "bacon", amount: 64, unit: "g"},
+        {name: "pepperoni", amount: 64, unit: "g"},
         {name: "peppadews", amount: 30, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "feta", amount: 30, unit: "g"},
-        {name: "fresh herbs", amount: 15, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "feta", amount: 32, unit: "g"},
+        {name: "red onion", amount: 8, unit: "g"},
+        {name: "biltong", amount: 24, unit: "g"},
+        {name: "chutney", amount: 12, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Vegan Harvest Pizza": [
         {name: "mushrooms", amount: 55, unit: "g"},
         {name: "baby marrow", amount: 40, unit: "g"},
-        {name: "kalamata olives", amount: 60, unit: "g"},
-        {name: "sundried tomatoes", amount: 40, unit: "g"},
-        {name: "seasonal herbs", amount: 1, unit: "g"},
-        {name: "hummus", amount: 45, unit: "g"},
-        {name: "olive oil", amount: 10, unit: "ml"}
+        {name: "kalamata olives", amount: 50, unit: "g"},
+        {name: "sundried tomatoes", amount: 60, unit: "g"},
+        {name: "hummus", amount: 56, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "olive oil", amount: 2, unit: "ml"}
     ],
     "Poppa's Pizza": [
-        {name: "anchovies", amount: 35, unit: "g"},
-        {name: "olives", amount: 60, unit: "g"},
+        {name: "anchovies", amount: 34, unit: "g"},
+        {name: "kalamata olives", amount: 50, unit: "g"},
         {name: "fresh mozzarella", amount: 80, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "basil", amount: 10, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
-    ],
-    "The Zesty Zucchini": [
-        {name: "courgette", amount: 75, unit: "g"},
-        {name: "blue cheese", amount: 40, unit: "g"},
-        {name: "parmesan", amount: 3, unit: "g"},
-        {name: "fresh mozzarella", amount: 80, unit: "g"}
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "basil", amount: 3.5, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Chick Tick Boom": [
         {name: "spicy chicken tikka", amount: 100, unit: "g"},
         {name: "peppadews", amount: 30, unit: "g"},
-        {name: "fresh coriander", amount: 5, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "pizza sauce", amount: 65, unit: "g"}
+        {name: "fresh coriander", amount: 3.5, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
     ],
     "Artichoke & Ham": [
         {name: "ham", amount: 40, unit: "g"},
         {name: "mushrooms", amount: 55, unit: "g"},
         {name: "artichoke leaves", amount: 100, unit: "g"},
-        {name: "olives", amount: 60, unit: "g"},
-        {name: "shredded mozzarella", amount: 95, unit: "g"},
-        {name: "pizza sauce", amount: 60, unit: "g"}
+        {name: "olives", amount: 50, unit: "g"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "pizza sauce", amount: 60, unit: "ml"}
+    ],
+    "Glaze of Glory": [
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "bacon", amount: 64, unit: "g"},
+        {name: "red onion", amount: 8, unit: "g"},
+        {name: "feta", amount: 32, unit: "g"},
+        {name: "balsamic glaze", amount: 10, unit: "ml"}
+    ],
+    "Mediterranean": [
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "baby marrow", amount: 40, unit: "g"},
+        {name: "olives", amount: 50, unit: "g"},
+        {name: "sundried tomatoes", amount: 60, unit: "g"},
+        {name: "feta", amount: 32, unit: "g"},
+        {name: "garlic", amount: 2, unit: "g"}
+    ],
+    "Quattro Formaggi": [
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "provolone", amount: 64, unit: "g"},
+        {name: "fig preserve", amount: 45, unit: "g"},
+        {name: "red onion", amount: 8, unit: "g"},
+        {name: "parmesan", amount: 10, unit: "g"},
+        {name: "blue cheese", amount: 25, unit: "g"}
+    ],
+    "Caprese": [
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "baby tomatoes", amount: 100, unit: "g"},
+        {name: "fresh mozzarella", amount: 80, unit: "g"},
+        {name: "basil pesto", amount: 6, unit: "g"},
+        {name: "balsamic glaze", amount: 10, unit: "ml"},
+        {name: "basil", amount: 3.5, unit: "g"}
+    ],
+    "Owen": [
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"}
+    ],
+    "Jane's Dough": [
+        {name: "olive oil", amount: 5, unit: "ml"},
+        {name: "kalamata olives", amount: 50, unit: "g"},
+        {name: "basil", amount: 3.5, unit: "g"},
+        {name: "rosemary", amount: 2, unit: "g"},
+        {name: "garlic", amount: 3, unit: "g"},
+        {name: "rocket", amount: 20, unit: "g"}
+    ],
+    "Braaibroodjie Pizza": [
+        {name: "pizza sauce", amount: 60, unit: "ml"},
+        {name: "shredded mozzarella", amount: 94, unit: "g"},
+        {name: "chutney", amount: 20, unit: "g"},
+        {name: "red onion", amount: 20, unit: "g"},
+        {name: "baby tomatoes", amount: 60, unit: "g"}
     ]
 };
 
@@ -3130,14 +3180,32 @@ tabButtons.forEach(button => {
     button.addEventListener('click', () => {
         // Remove active class from all buttons
         tabButtons.forEach(btn => btn.classList.remove('active'));
-        
+
         // Add active class to clicked button
         button.classList.add('active');
-        
-        // Update current tab and filter orders
+
+        // Update current tab
         currentTab = button.dataset.tab;
-        const filteredOrders = filterOrdersByStatus(currentTab);
-        displayOrders(filteredOrders);
+
+        const addOrderSection = document.getElementById('addOrderSection');
+        const searchFilterSection = document.querySelector('.search-filter-section');
+        const refreshBanner = document.querySelector('.refresh-banner');
+
+        if (currentTab === 'add-order') {
+            // Show add-order form, hide order list UI
+            ordersContainer.style.display = 'none';
+            if (searchFilterSection) searchFilterSection.style.display = 'none';
+            if (refreshBanner) refreshBanner.style.display = 'none';
+            if (addOrderSection) addOrderSection.style.display = 'block';
+        } else {
+            // Show order list UI, hide add-order form
+            ordersContainer.style.display = '';
+            if (searchFilterSection) searchFilterSection.style.display = '';
+            if (refreshBanner) refreshBanner.style.display = '';
+            if (addOrderSection) addOrderSection.style.display = 'none';
+            const filteredOrders = filterOrdersByStatus(currentTab);
+            displayOrders(filteredOrders);
+        }
     });
 });
 
@@ -3204,10 +3272,242 @@ function initializeSearchAndFilters() {
             
             // Update filter
             quickFilter = btn.dataset.filter;
-            
+
             // Update display
             const filteredOrders = filterOrdersByStatus(currentTab);
             displayOrders(filteredOrders);
         });
     });
+}
+
+// ─────────────────────────────────────────────
+// ADD ORDER FORM
+// ─────────────────────────────────────────────
+
+const AO_PIZZA_MENU = [
+    { name: "JANE'S DOUGH",      price: 89  },
+    { name: 'BRAAIBROODJIE PIZZA', price: 100 },
+    { name: 'OWEN',              price: 99  },
+    { name: 'MARGIE',            price: 119 },
+    { name: 'CAPRESE',           price: 129 },
+    { name: 'SPUD',              price: 129 },
+    { name: 'CHICK TICK BOOM',   price: 149 },
+    { name: 'GLAZE OF GLORY',    price: 149 },
+    { name: 'PIG IN PARADISE',   price: 149 },
+    { name: 'ARTICHOKE & HAM',   price: 155 },
+    { name: 'QUATTRO FORMAGGI',  price: 155 },
+    { name: 'MEDITERRANEAN',     price: 159 },
+    { name: 'MUSHROOM CLOUD',    price: 159 },
+    { name: "POPPA'S",           price: 159 },
+    { name: 'THE CHAMP',         price: 159 },
+    { name: 'VEGAN HARVEST',     price: 165 },
+    { name: 'MISH-MASH',         price: 169 },
+    { name: "LEKKER'IZZA",       price: 185 }
+];
+
+const AO_DRINKS_MENU = [
+    { name: 'Coke 330ml',          price: 20 },
+    { name: 'Coke Zero 330ml',     price: 20 },
+    { name: 'Sprite 330ml',        price: 20 },
+    { name: 'Sprite Zero 330ml',   price: 20 },
+    { name: 'Ice Tea Peach 500ml', price: 20 },
+    { name: 'Ice Tea Lemon 500ml', price: 20 },
+    { name: 'Sparkling Water 500ml', price: 20 },
+    { name: 'Still Water 500ml',   price: 20 },
+    { name: 'Grapetiser 330ml',    price: 35 },
+    { name: 'Appletiser 330ml',    price: 35 },
+    { name: 'Savanna Zero 330ml',  price: 35 },
+    { name: 'Heineken Zero 330ml', price: 35 }
+];
+
+let aoPizzaRows = [];
+let aoDrinkRows = [];
+
+function pizzaOptionsHTML(selectedName) {
+    return AO_PIZZA_MENU.map(p =>
+        `<option value="${p.name}" ${p.name === selectedName ? 'selected' : ''}>
+            ${p.name} (R${p.price.toFixed(2)})
+        </option>`
+    ).join('');
+}
+
+function drinkOptionsHTML(selectedName) {
+    return AO_DRINKS_MENU.map(d =>
+        `<option value="${d.name}" ${d.name === selectedName ? 'selected' : ''}>
+            ${d.name} (R${d.price.toFixed(2)})
+        </option>`
+    ).join('');
+}
+
+function renderPizzaRows() {
+    const list = document.getElementById('ao-pizzaList');
+    if (!list) return;
+    list.innerHTML = aoPizzaRows.map((row, i) => `
+        <div class="ao-row" data-pizza-index="${i}">
+            <select class="ao-select" onchange="updatePizzaRow(${i}, 'type', this.value)">
+                ${pizzaOptionsHTML(row.type)}
+            </select>
+            <input type="number" class="ao-qty" value="${row.qty}" min="1" max="10"
+                onchange="updatePizzaRow(${i}, 'qty', parseInt(this.value)||1)">
+            <button type="button" class="ao-remove-btn" onclick="removePizzaRow(${i})">✕</button>
+        </div>
+    `).join('');
+    updateTotal();
+}
+
+function renderDrinkRows() {
+    const list = document.getElementById('ao-drinkList');
+    if (!list) return;
+    list.innerHTML = aoDrinkRows.map((row, i) => `
+        <div class="ao-row" data-drink-index="${i}">
+            <select class="ao-select" onchange="updateDrinkRow(${i}, 'type', this.value)">
+                ${drinkOptionsHTML(row.type)}
+            </select>
+            <input type="number" class="ao-qty" value="${row.qty}" min="1" max="10"
+                onchange="updateDrinkRow(${i}, 'qty', parseInt(this.value)||1)">
+            <button type="button" class="ao-remove-btn" onclick="removeDrinkRow(${i})">✕</button>
+        </div>
+    `).join('');
+    updateTotal();
+}
+
+function addPizzaRow() {
+    aoPizzaRows.push({ type: 'MARGIE', qty: 1 });
+    renderPizzaRows();
+}
+
+function removePizzaRow(i) {
+    aoPizzaRows.splice(i, 1);
+    renderPizzaRows();
+}
+
+function updatePizzaRow(i, field, value) {
+    aoPizzaRows[i][field] = value;
+    updateTotal();
+}
+
+function addDrinkRow() {
+    aoDrinkRows.push({ type: 'Coke 330ml', qty: 1 });
+    renderDrinkRows();
+}
+
+function removeDrinkRow(i) {
+    aoDrinkRows.splice(i, 1);
+    renderDrinkRows();
+}
+
+function updateDrinkRow(i, field, value) {
+    aoDrinkRows[i][field] = value;
+    updateTotal();
+}
+
+function updateTotal() {
+    const pizzaTotal = aoPizzaRows.reduce((sum, row) => {
+        const pizza = AO_PIZZA_MENU.find(p => p.name === row.type) || { price: 0 };
+        return sum + pizza.price * row.qty;
+    }, 0);
+    const drinkTotal = aoDrinkRows.reduce((sum, row) => {
+        const drink = AO_DRINKS_MENU.find(d => d.name === row.type) || { price: 0 };
+        return sum + drink.price * row.qty;
+    }, 0);
+    const totalEl = document.getElementById('ao-total');
+    if (totalEl) totalEl.textContent = `Total: R${(pizzaTotal + drinkTotal).toFixed(2)}`;
+}
+
+async function submitNewOrder() {
+    const customerName = (document.getElementById('ao-customerName')?.value || '').trim();
+    const platform = document.getElementById('ao-platform')?.value || 'Window';
+    const prepTime = parseInt(document.getElementById('ao-prepTime')?.value, 10) || 15;
+    const resultEl = document.getElementById('ao-result');
+    const submitBtn = document.getElementById('ao-submitBtn');
+
+    if (!customerName) {
+        showAoResult('Please enter a customer name.', 'error');
+        return;
+    }
+    if (aoPizzaRows.length === 0 && aoDrinkRows.length === 0) {
+        showAoResult('Please add at least one pizza or drink.', 'error');
+        return;
+    }
+
+    if (!db) {
+        showAoResult('Firebase not connected. Please refresh and try again.', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    const processedPizzas = aoPizzaRows.map((row, index) => {
+        const pizza = AO_PIZZA_MENU.find(p => p.name === row.type) || { price: 0 };
+        return {
+            pizzaType: row.type,
+            quantity: row.qty,
+            totalPrice: pizza.price * row.qty,
+            isCooked: false,
+            rowNumber: index + 1,
+            specialInstructions: ''
+        };
+    });
+
+    const processedDrinks = aoDrinkRows.map(row => {
+        const drink = AO_DRINKS_MENU.find(d => d.name === row.type) || { price: 0 };
+        return {
+            drinkType: row.type,
+            quantity: row.qty,
+            totalPrice: drink.price * row.qty
+        };
+    });
+
+    const pizzaTotal = processedPizzas.reduce((s, p) => s + p.totalPrice, 0);
+    const drinkTotal = processedDrinks.reduce((s, d) => s + d.totalPrice, 0);
+    const totalAmount = pizzaTotal + drinkTotal;
+
+    const now = new Date();
+    const order = {
+        customerName,
+        platform,
+        status: 'pending',
+        pizzas: processedPizzas,
+        coldDrinks: processedDrinks,
+        totalAmount,
+        orderTime: now.toISOString(),
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+        prepTimeMinutes: prepTime,
+        dueTime: new Date(Date.now() + prepTime * 60 * 1000).toISOString(),
+        cooked: Array(processedPizzas.length).fill(false),
+        hasSpecialInstructions: false,
+        source: 'IllovoDashboard',
+        timestamp: Date.now()
+    };
+
+    try {
+        const docRef = await db.collection('orders').add(order);
+        debugLog(`New order submitted from Illovo: ${docRef.id}`);
+        showAoResult(`✅ Order placed! ID: ${docRef.id.substring(0, 8)}`, 'success');
+        // Reset form
+        aoPizzaRows = [];
+        aoDrinkRows = [];
+        renderPizzaRows();
+        renderDrinkRows();
+        document.getElementById('ao-customerName').value = '';
+        document.getElementById('ao-platform').value = 'Window';
+        document.getElementById('ao-prepTime').value = '15';
+    } catch (error) {
+        debugLog(`Error submitting order from Illovo: ${error.message}`, 'error');
+        showAoResult(`❌ Error: ${error.message}`, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Place Order';
+    }
+}
+
+function showAoResult(message, type) {
+    const resultEl = document.getElementById('ao-result');
+    if (!resultEl) return;
+    resultEl.textContent = message;
+    resultEl.className = `ao-result ao-result--${type}`;
+    resultEl.style.display = 'block';
+    setTimeout(() => { resultEl.style.display = 'none'; }, 5000);
 }

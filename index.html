@@ -73,6 +73,7 @@
                 <button class="tab-btn" data-tab="done">Completed</button>
                 <button class="tab-btn" data-tab="stats">📊 Daily Stats</button>
                 <button class="tab-btn" data-tab="monthly">📅 Monthly Stats</button>
+                <button class="tab-btn" data-tab="add-order">➕ Add Order</button>
             </nav>
         </header>
 
@@ -112,6 +113,50 @@
                 <div class="loading">
                     <div class="spinner"></div>
                     <p>Loading pizza orders...</p>
+                </div>
+            </div>
+
+            <!-- Add Order Form — hidden until "Add Order" tab is active -->
+            <div id="addOrderSection" style="display:none;">
+                <div class="add-order-card">
+                    <h2 class="add-order-title">➕ New Order</h2>
+
+                    <div class="add-order-field">
+                        <label>Customer Name</label>
+                        <input type="text" id="ao-customerName" placeholder="Enter customer name..." autocomplete="off">
+                    </div>
+
+                    <div class="add-order-field">
+                        <label>Platform / Delivery Method</label>
+                        <select id="ao-platform">
+                            <option value="Window">Window (Walk-in)</option>
+                            <option value="Uber Eats">Uber Eats</option>
+                            <option value="Mr D Food">Mr D Food</option>
+                            <option value="Bolt Food">Bolt Food</option>
+                            <option value="Customer Pickup">Customer Pickup</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="add-order-field">
+                        <label>Prep Time (minutes)</label>
+                        <input type="number" id="ao-prepTime" value="15" min="5" max="120">
+                    </div>
+
+                    <div class="add-order-section-label">🍕 Pizzas</div>
+                    <div id="ao-pizzaList"></div>
+                    <button type="button" class="ao-add-row-btn" onclick="addPizzaRow()">+ Add Pizza</button>
+
+                    <div class="add-order-section-label" style="margin-top:1rem;">🥤 Cold Drinks (optional)</div>
+                    <div id="ao-drinkList"></div>
+                    <button type="button" class="ao-add-row-btn ao-add-row-btn--drink" onclick="addDrinkRow()">+ Add Cold Drink</button>
+
+                    <div id="ao-total" class="add-order-total">Total: R0.00</div>
+
+                    <button type="button" id="ao-submitBtn" class="ao-submit-btn" onclick="submitNewOrder()">Place Order</button>
+
+                    <div id="ao-result" class="ao-result" style="display:none;"></div>
                 </div>
             </div>
         </main>
