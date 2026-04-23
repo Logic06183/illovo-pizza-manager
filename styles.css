@@ -1313,3 +1313,48 @@ footer {
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
 }
+
+/* Due-time badge — on-time / late indicator on order cards */
+.due-time-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    margin-left: 0.4rem;
+}
+.due-time-ok { background-color: #166534; color: #bbf7d0; }
+.due-time-urgent { background-color: #92400e; color: #fef3c7; }
+.due-time-late { background-color: #ea580c; color: #fff; }
+.due-time-very-late { background-color: #b91c1c; color: #fff; animation: pulse 1s infinite; }
+
+/* Card border colours for urgency */
+.order-card--late { border-left: 4px solid #ea580c !important; }
+.order-card--very-late { border-left: 4px solid #b91c1c !important; }
+.order-card--urgent { border-left: 4px solid #d97706 !important; }
+
+/* Per-pizza row with instructions */
+.ao-pizza-row { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; }
+
+/* Shared textarea/input for order & per-pizza instructions */
+.ao-instructions-textarea,
+.ao-instructions-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #374151;
+    background-color: #1a1a1a;
+    color: #e5e7eb;
+    font-size: 0.85rem;
+    resize: vertical;
+    box-sizing: border-box;
+}
+.ao-instructions-textarea::placeholder,
+.ao-instructions-input::placeholder { color: #6b7280; }
+.ao-instructions-textarea:focus,
+.ao-instructions-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}

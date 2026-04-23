@@ -697,7 +697,32 @@ function createOrderCard(order) {
     
     statusContainer.appendChild(statusBadge);
     statusContainer.appendChild(orderTimer);
-    
+
+    // Due-time badge: shows ON TIME / LATE / minutes remaining
+    if (dueTime) {
+        const nowMs = new Date();
+        const diffMins = Math.floor((dueTime - nowMs) / 60000);
+        const timeBadge = document.createElement('div');
+        timeBadge.className = 'due-time-badge';
+        if (diffMins < -15) {
+            timeBadge.classList.add('due-time-very-late');
+            timeBadge.textContent = `${Math.abs(diffMins)}m LATE`;
+            orderCard.classList.add('order-card--very-late');
+        } else if (diffMins < 0) {
+            timeBadge.classList.add('due-time-late');
+            timeBadge.textContent = `${Math.abs(diffMins)}m LATE`;
+            orderCard.classList.add('order-card--late');
+        } else if (diffMins <= 5) {
+            timeBadge.classList.add('due-time-urgent');
+            timeBadge.textContent = `${diffMins}m left`;
+            orderCard.classList.add('order-card--urgent');
+        } else {
+            timeBadge.classList.add('due-time-ok');
+            timeBadge.textContent = `${diffMins}m`;
+        }
+        statusContainer.appendChild(timeBadge);
+    }
+
     orderHeader.appendChild(orderTitle);
     orderHeader.appendChild(statusContainer);
     
@@ -1228,11 +1253,25 @@ function displayOrders(filteredOrders) {
         return;
     }
     
-    filteredOrders.forEach(order => {
+    // Sort by due time: late orders first, then by soonest due time
+    const now = new Date();
+    const sorted = [...filteredOrders].sort((a, b) => {
+        const aData = a.data();
+        const bData = b.data();
+        const dueA = aData.dueTime ? new Date(aData.dueTime) : new Date(8640000000000000);
+        const dueB = bData.dueTime ? new Date(bData.dueTime) : new Date(8640000000000000);
+        const lateA = dueA < now;
+        const lateB = dueB < now;
+        if (lateA && !lateB) return -1;
+        if (!lateA && lateB) return 1;
+        return dueA - dueB;
+    });
+
+    sorted.forEach(order => {
         const orderCard = createOrderCard(order);
         ordersContainer.appendChild(orderCard);
     });
-    
+
     updateLastUpdated();
 }
 
@@ -3343,13 +3382,19 @@ function renderPizzaRows() {
     const list = document.getElementById('ao-pizzaList');
     if (!list) return;
     list.innerHTML = aoPizzaRows.map((row, i) => `
-        <div class="ao-row" data-pizza-index="${i}">
-            <select class="ao-select" onchange="updatePizzaRow(${i}, 'type', this.value)">
-                ${pizzaOptionsHTML(row.type)}
-            </select>
-            <input type="number" class="ao-qty" value="${row.qty}" min="1" max="10"
-                onchange="updatePizzaRow(${i}, 'qty', parseInt(this.value)||1)">
-            <button type="button" class="ao-remove-btn" onclick="removePizzaRow(${i})">✕</button>
+        <div class="ao-pizza-row" data-pizza-index="${i}">
+            <div class="ao-row">
+                <select class="ao-select" onchange="updatePizzaRow(${i}, 'type', this.value)">
+                    ${pizzaOptionsHTML(row.type)}
+                </select>
+                <input type="number" class="ao-qty" value="${row.qty}" min="1" max="10"
+                    onchange="updatePizzaRow(${i}, 'qty', parseInt(this.value)||1)">
+                <button type="button" class="ao-remove-btn" onclick="removePizzaRow(${i})">✕</button>
+            </div>
+            <input type="text" class="ao-instructions-input"
+                placeholder="Special instructions for this pizza (optional)..."
+                value="${(row.instructions || '').replace(/"/g, '&quot;')}"
+                oninput="updatePizzaRow(${i}, 'instructions', this.value)">
         </div>
     `).join('');
     updateTotal();
@@ -3372,7 +3417,7 @@ function renderDrinkRows() {
 }
 
 function addPizzaRow() {
-    aoPizzaRows.push({ type: 'MARGIE', qty: 1 });
+    aoPizzaRows.push({ type: 'MARGIE', qty: 1, instructions: '' });
     renderPizzaRows();
 }
 
@@ -3418,6 +3463,7 @@ async function submitNewOrder() {
     const customerName = (document.getElementById('ao-customerName')?.value || '').trim();
     const platform = document.getElementById('ao-platform')?.value || 'Window';
     const prepTime = parseInt(document.getElementById('ao-prepTime')?.value, 10) || 15;
+    const orderInstructions = (document.getElementById('ao-instructions')?.value || '').trim();
     const resultEl = document.getElementById('ao-result');
     const submitBtn = document.getElementById('ao-submitBtn');
 
@@ -3446,7 +3492,7 @@ async function submitNewOrder() {
             totalPrice: pizza.price * row.qty,
             isCooked: false,
             rowNumber: index + 1,
-            specialInstructions: ''
+            specialInstructions: row.instructions || ''
         };
     });
 
@@ -3464,6 +3510,7 @@ async function submitNewOrder() {
     const totalAmount = pizzaTotal + drinkTotal;
 
     const now = new Date();
+    const hasPizzaInstructions = processedPizzas.some(p => p.specialInstructions && p.specialInstructions.trim());
     const order = {
         customerName,
         platform,
@@ -3477,7 +3524,8 @@ async function submitNewOrder() {
         prepTimeMinutes: prepTime,
         dueTime: new Date(Date.now() + prepTime * 60 * 1000).toISOString(),
         cooked: Array(processedPizzas.length).fill(false),
-        hasSpecialInstructions: false,
+        specialInstructions: orderInstructions,
+        hasSpecialInstructions: !!orderInstructions || hasPizzaInstructions,
         source: 'IllovoDashboard',
         timestamp: Date.now()
     };
@@ -3494,6 +3542,8 @@ async function submitNewOrder() {
         document.getElementById('ao-customerName').value = '';
         document.getElementById('ao-platform').value = 'Window';
         document.getElementById('ao-prepTime').value = '15';
+        const instrEl = document.getElementById('ao-instructions');
+        if (instrEl) instrEl.value = '';
     } catch (error) {
         debugLog(`Error submitting order from Illovo: ${error.message}`, 'error');
         showAoResult(`❌ Error: ${error.message}`, 'error');
